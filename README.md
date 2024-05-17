@@ -18,6 +18,18 @@
   - [x] `\>`: 运行系统指令，目前默认采用 cmd(Windows)
     - [ ] 支持macOS
 
+## 功能截图
+
+![screenshot-1](./resources/screenshot-1.png)
+
+![screenshot-2](./resources/screenshot-2.png)
+
+![screenshot-3](./resources/screenshot-3.png)
+
+![screenshot-4](./resources/screenshot-4.png)
+
 ## 致谢
 
 感谢汉堡大佬的LOGO
+
+![logo](./src-utools/logo.png)
