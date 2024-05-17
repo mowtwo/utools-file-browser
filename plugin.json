@@ -1,0 +1,18 @@
+{
+  "logo": "logo.png",
+  "preload": "./.utools/preload.js",
+  "features": [
+    {
+      "code": "file-browser",
+      "explain": "文件浏览器",
+      "cmds": [
+        "文件浏览器",
+        "file-browser",
+        "fb"
+      ]
+    }
+  ],
+  "platform": [
+    "win32"
+  ]
+}
