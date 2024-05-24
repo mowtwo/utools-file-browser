@@ -83,6 +83,23 @@ function getCmdHelp() {
 }
 
 function getSystemCmdRun(systemCmd) {
+  if (settings.cmdAlawyBack) {
+    return [
+      {
+        title: '静默执行：' + systemCmd,
+        description: '执行当前命令，但是不会打开一个cmd窗口',
+        action: 'systemCmdBack',
+        systemCmdBack: systemCmd
+      },
+      {
+        title: '开始执行：' + systemCmd,
+        description: '执行当前命令，将会打开一个cmd窗口',
+        action: 'systemCmd',
+        systemCmd
+      }
+    ]
+  }
+
   return [
     {
       title: '开始执行：' + systemCmd,
@@ -154,7 +171,8 @@ function getPluginSettings() {
     showHiddenFile,
     showFileSize,
     forceRegexSearch,
-    caseSensitive
+    caseSensitive,
+    cmdAlawyBack
   } = settings
 
   return [
@@ -202,6 +220,14 @@ function getPluginSettings() {
       action: 'settings',
       settings: {
         caseSensitive: !caseSensitive
+      }
+    },
+    {
+      title: `cmd是否优先静默执行：${cmdAlawyBack ? '是' : '否'}`,
+      description: `点击${cmdAlawyBack ? '关闭' : '开启'}`,
+      action: 'settings',
+      settings: {
+        cmdAlawyBack: !cmdAlawyBack
       }
     }
   ]
