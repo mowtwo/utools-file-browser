@@ -89,6 +89,12 @@ function getSystemCmdRun(systemCmd) {
       description: '执行当前命令，将会打开一个cmd窗口',
       action: 'systemCmd',
       systemCmd
+    },
+    {
+      title: '静默执行：' + systemCmd,
+      description: '执行当前命令，但是不会打开一个cmd窗口',
+      action: 'systemCmdBack',
+      systemCmdBack: systemCmd
     }
   ]
 }

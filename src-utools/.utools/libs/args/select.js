@@ -52,9 +52,16 @@ module.exports = function select(_, item, setList) {
     exec(
       'start cmd.exe /K "' +
       `cd /d ${context.currentPath} && ${item.systemCmd}"`
-      // '"cd ' + context.currentPath + ' && ' + item.systemCmd + '"'
     )
     return
+  }
+
+  if (action === 'systemCmdBack') {
+    utools.hideMainWindow()
+    exec(
+      'cmd.exe /K "' +
+      `cd /d ${context.currentPath} && ${item.systemCmdBack}"`
+    )
   }
 
   if (action === 'switchDisk') {
