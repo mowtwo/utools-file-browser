@@ -10,6 +10,29 @@
         "file-browser",
         "fb"
       ]
+    },
+    {
+      "code": "match-path",
+      "explain": "通过匹配路径启动",
+      "cmds": [
+        {
+          "type": "regex",
+          "match": "/^[a-zA-Z]:\\\\(?:\\w+\\\\?)*/i",
+          "label": "文件浏览器"
+        }
+      ]
+    },
+    {
+      "code": "match-file",
+      "explain": "通过匹配文件名启动",
+      "cmds": [
+        {
+          "type": "files",
+          "label": "文件浏览器",
+          "minLength": 1,
+          "maxLength": 1
+        }
+      ]
     }
   ],
   "platform": [
