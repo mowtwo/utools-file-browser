@@ -1,7 +1,8 @@
 
+const { fileListFilter } = require("../shared/filter")
 const { getCurrentDirFiles } = require("../shared/path")
 const { getSpecialCmds, getRunCmdResult } = require("../shared/special")
-const { context } = require("../shared/store")
+const { context, settings } = require("../shared/store")
 
 module.exports = function search(_, text, setList) {
   if (!text) {
@@ -34,7 +35,7 @@ module.exports = function search(_, text, setList) {
     return
   }
   // 搜索模式
-  setList(context.cachedList.filter(
-    item => item.title.toLowerCase().includes(text.toLowerCase()))
+  setList(
+    context.cachedList.filter(fileListFilter(text))
   )
 }

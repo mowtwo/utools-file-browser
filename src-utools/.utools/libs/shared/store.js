@@ -12,6 +12,8 @@ const settings = mountDbSynProperties({}, {
   showFileType: false,
   showHiddenFile: false,
   showFileSize: false,
+  forceRegexSearch: false,
+  caseSensitive: false,
 })
 
 const version = '1.0.0'

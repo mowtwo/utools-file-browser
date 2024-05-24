@@ -1,4 +1,5 @@
 const { SortTypeKeys, SortType, SortTypeReverse, SortTypeValues } = require("./constant")
+const { fileListFilter } = require("./filter")
 const { filesSort } = require("./sort")
 const { context, version, author, settings } = require("./store")
 const path = require("path")
@@ -8,6 +9,12 @@ exports.getSpecialCmds = function getSpecialCmds() {
     {
       title: '返回文件浏览模式',
       description: `当前路径：${context.currentPath}，选择下面指令进行其他操作`,
+    },
+    {
+      title: '\\+',
+      description: '正则表达查询模式',
+      action: 'input',
+      input: '\\+'
     },
     {
       title: '\\^',
@@ -87,25 +94,32 @@ function getSystemCmdRun(systemCmd) {
 }
 
 function getSystemExploererList(text) {
-  return context.cachedList.map(item => {
-    if (item.action && item.open) {
-      return {
-        ...item,
-        action: 'systemOpen',
-        systemOpen: item.open,
-        description: '将以系统文件管理器打开'
+  return [
+    {
+      title: '退出文件管理器启动模式',
+      description: '返回指令选择',
+      action: 'input',
+      input: '\\'
+    },
+    ...context.cachedList.map(item => {
+      if (item.action && item.open) {
+        return {
+          ...item,
+          action: 'systemOpen',
+          systemOpen: item.open,
+          description: '将以系统文件管理器打开'
+        }
       }
-    }
-    return item
-  }).filter(
-    item => {
-      if (!text) {
+      return item
+    }).filter(
+      item => {
+        if (item.action === 'back') {
+          return false
+        }
+
         return true
       }
-      console.log('search', text)
-      return item.title.toLowerCase().includes(text.toLowerCase())
-    }
-  )
+    ).filter(fileListFilter(text))]
 }
 
 function getSystemLogicDisks(text) {
@@ -123,7 +137,6 @@ function getSystemLogicDisks(text) {
       if (!text) {
         return true
       }
-      console.log('search', text)
       return item.title.toLowerCase().includes(text.toLowerCase())
     })
 }
@@ -133,7 +146,9 @@ function getPluginSettings() {
   const {
     showFileType,
     showHiddenFile,
-    showFileSize
+    showFileSize,
+    forceRegexSearch,
+    caseSensitive
   } = settings
 
   return [
@@ -165,6 +180,22 @@ function getPluginSettings() {
       action: 'settings',
       settings: {
         showHiddenFile: !showHiddenFile
+      }
+    },
+    {
+      title: `搜索启用正则模式：${forceRegexSearch ? '是' : '否'}`,
+      description: `点击${forceRegexSearch ? '关闭' : '开启'}`,
+      action: 'settings',
+      settings: {
+        forceRegexSearch: !forceRegexSearch
+      }
+    },
+    {
+      title: `搜索大小写敏感：${caseSensitive ? '是' : '否'}`,
+      description: `点击${caseSensitive ? '关闭' : '开启'}`,
+      action: 'settings',
+      settings: {
+        caseSensitive: !caseSensitive
       }
     }
   ]
@@ -284,14 +315,30 @@ function getPluginFileTempSorted(text) {
         return false
       }
 
-      if (!search) {
-        return true
-      }
-
-      return item.title.toLowerCase().includes(search.toLowerCase())
-    }).sort(filesSort(sortBy))
+      return true
+    }).filter(fileListFilter(search)).sort(filesSort(sortBy))
   ]
 
+}
+
+function getFileListWithRegex(text) {
+  const regex = new RegExp(text, 'i')
+
+  return [
+    {
+      title: '退出正则表达查询模式',
+      description: '返回指令选择',
+      action: 'input',
+      input: '\\'
+    },
+    ...context.cachedList.filter(item => {
+      if (item.action === 'back') {
+        return false
+      }
+
+      return regex.test(item.title)
+    })
+  ]
 }
 
 exports.getRunCmdResult = function getRunCmdResult(text) {
@@ -328,6 +375,10 @@ exports.getRunCmdResult = function getRunCmdResult(text) {
 
   if (cmd.startsWith('^+')) {
     return getPluginFileTempSorted(cmd.slice(2).trim())
+  }
+
+  if (cmd.startsWith('+')) {
+    return getFileListWithRegex(cmd.slice(1))
   }
 
 
