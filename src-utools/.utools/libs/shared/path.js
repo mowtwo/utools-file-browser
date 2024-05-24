@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const { context, settings } = require('./store');
 const { fmtFileSize } = require('./size');
+const { filesSort } = require('./sort');
 
 exports.getCurrentDirFiles = async function getCurrentDirFiles() {
   try {
@@ -12,13 +13,14 @@ exports.getCurrentDirFiles = async function getCurrentDirFiles() {
     })))
 
     const files = fs.readdirSync(dir);
+    const sortBy = settings.sortBy
     context.cachedList = [
       ...files.map(file => {
         const fullPath = path.join(dir, file);
         const icon = utools.getFileIcon(fullPath)
         try {
           const stat = fs.statSync(path.join(dir, file));
-          console.log(stat)
+
           const isDirectory = stat.isDirectory();
           return {
             title: file,
@@ -53,46 +55,7 @@ exports.getCurrentDirFiles = async function getCurrentDirFiles() {
           }
           return item
         })
-        .sort((a, b) => {
-          const sortBy = settings.sortBy
-          if (sortBy === 'NameAsc') {
-            return a.title.localeCompare(b.title)
-          }
-          if (sortBy === 'NameDesc') {
-            return b.title.localeCompare(a.title)
-          }
-          if (sortBy === 'SizeAsc') {
-            return a.size - b.size
-          }
-          if (sortBy === 'SizeDesc') {
-            return b.size - a.size
-          }
-          if (sortBy === 'ModifyTimeAsc') {
-            return a.modified - b.modified
-          }
-          if (sortBy === 'ModifyTimeDesc') {
-            return b.modified - a.modified
-          }
-          // 根据文件或者文件夹类型排序，文件夹在前面，然后按文件名排序
-          if (sortBy === 'TypeAsc') {
-            if (a.isDirectory && !b.isDirectory) {
-              return -1
-            } else if (!a.isDirectory && b.isDirectory) {
-              return 1
-            } else {
-              return a.title.localeCompare(b.title)
-            }
-          }
-          if (sortBy === 'TypeDesc') {
-            if (a.isDirectory && !b.isDirectory) {
-              return 1
-            } else if (!a.isDirectory && b.isDirectory) {
-              return -1
-            } else {
-              return b.title.localeCompare(a.title)
-            }
-          }
-        })
+        .sort(filesSort(sortBy))
     ]
     // 判断当前路径是不是根路径
     if (dir !== path.parse(dir).root) {

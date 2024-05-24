@@ -11,15 +11,21 @@ const SortType = Object.freeze({
   ModifyTimeAsc: '修改时间升序',
   // 根据文件修改时间降序
   ModifyTimeDesc: '修改时间降序',
-  // 根据文件类型升序
-  TypeAsc: '文件类型升序',
-  // 根据文件类型降序
-  TypeDesc: '文件类型降序'
 })
+
+const SortTypeReverse = Object.freeze(
+  Object.fromEntries(
+    Object.entries(SortType).map(([key, value]) => [value, key])
+  )
+)
 
 const SortTypeKeys = Object.freeze(Object.keys(SortType))
 
+const SortTypeValues = Object.freeze(Object.values(SortType))
+
 module.exports = {
   SortType,
-  SortTypeKeys
+  SortTypeKeys,
+  SortTypeReverse,
+  SortTypeValues
 }

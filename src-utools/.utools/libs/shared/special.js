@@ -1,4 +1,5 @@
-const { SortTypeKeys, SortType } = require("./constant")
+const { SortTypeKeys, SortType, SortTypeReverse, SortTypeValues } = require("./constant")
+const { filesSort } = require("./sort")
 const { context, version, author, settings } = require("./store")
 const path = require("path")
 
@@ -202,10 +203,96 @@ function getPluginFileSortTypes() {
         action: 'sortBy',
         sortBy: key
       }
+    }),
+    {
+      title: '\\^+',
+      description: '进入局部排序模式，仅在当前文件夹应用排序规则',
+      action: 'input',
+      input: '\\^+'
+    }
+  ]
+}
+
+function getPluginFileTempSortTypes() {
+
+  const { sortBy } = settings
+
+  const sortTypeKeysSorted = [
+    ...SortTypeKeys
+  ].sort((a, b) => {
+    if (sortBy === a) {
+      return -1
+    }
+    if (sortBy === b) {
+      return 1
+    }
+    return 0
+  })
+
+  console.log(sortTypeKeysSorted)
+
+
+  return [
+    {
+      title: '退出局部排序',
+      description: '返回排序设置，当前路径：' + context.currentPath,
+      action: 'input',
+      input: '\\^'
+    },
+    ...sortTypeKeysSorted.map(key => {
+
+      const S = SortType[key]
+
+      return {
+        title: `\\^+${S}`,
+        description: '点击以此模式进行排序',
+        action: 'input',
+        input: `\\^+${S} `
+      }
     })
   ]
 }
 
+function getPluginFileTempSorted(text) {
+
+  const [sortByName, _search] = text.split(' ')
+
+
+  if (!Reflect.has(SortTypeReverse, sortByName)) {
+    return [
+      {
+        title: '暂不支持的排序方式',
+        description: '请检查输入的排序方式是否正确，点击返回返回局部排序方式选择',
+        action: 'input',
+        input: '\\^+'
+      }
+    ]
+  }
+
+  const search = _search?.trim()
+  const sortBy = SortTypeReverse[sortByName]
+
+  return [
+    {
+      title: '返回局部排序选择',
+      description: '返回排序设置，当前排序方式' + sortByName + '，当前路径：' + context.currentPath,
+      action: 'input',
+      input: '\\^+'
+    },
+    ...context.cachedList.filter(item => {
+      if (item.action === 'back') {
+        return false
+      }
+
+      if (!search) {
+        return true
+      }
+
+      return item.title.toLowerCase().includes(search.toLowerCase())
+    }).sort(filesSort(sortBy))
+  ]
+
+}
 
 exports.getRunCmdResult = function getRunCmdResult(text) {
   const cmd = text.slice(1)
@@ -233,6 +320,14 @@ exports.getRunCmdResult = function getRunCmdResult(text) {
 
   if (cmd === '^') {
     return getPluginFileSortTypes()
+  }
+
+  if (cmd === '^+') {
+    return getPluginFileTempSortTypes()
+  }
+
+  if (cmd.startsWith('^+')) {
+    return getPluginFileTempSorted(cmd.slice(2).trim())
   }
 
 
