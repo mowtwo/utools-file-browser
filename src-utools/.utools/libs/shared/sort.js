@@ -1,5 +1,11 @@
 exports.filesSort = function (sortBy) {
   return (a, b) => {
+    if (a.isDirectory && !b.isDirectory) {
+      return -1
+    } else if (!a.isDirectory && b.isDirectory) {
+      return 1
+    }
+
     if (sortBy === 'NameAsc') {
       return a.title.localeCompare(b.title)
     }
@@ -28,14 +34,6 @@ exports.filesSort = function (sortBy) {
         return a.title.localeCompare(b.title)
       }
     }
-    if (sortBy === 'TypeDesc') {
-      if (a.isDirectory && !b.isDirectory) {
-        return 1
-      } else if (!a.isDirectory && b.isDirectory) {
-        return -1
-      } else {
-        return b.title.localeCompare(a.title)
-      }
-    }
   }
 }
+
