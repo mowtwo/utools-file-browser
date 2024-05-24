@@ -1,17 +1,18 @@
-const { context, version, author } = require("./store")
+const { SortTypeKeys, SortType } = require("./constant")
+const { context, version, author, settings } = require("./store")
 const path = require("path")
 
 exports.getSpecialCmds = function getSpecialCmds() {
   return [
     {
       title: '返回文件浏览模式',
-      description: `当前路径：${context.currentPath}，选择下面指令进行其他操作`
+      description: `当前路径：${context.currentPath}，选择下面指令进行其他操作`,
     },
     {
-      title: '\\?',
-      description: '获取特殊路径帮助',
+      title: '\\^',
+      description: '切换排序方式',
       action: 'input',
-      input: '\\?'
+      input: '\\^'
     },
     {
       title: '\\>',
@@ -30,7 +31,19 @@ exports.getSpecialCmds = function getSpecialCmds() {
       description: '切换盘符，将会读取所有的分区盘符',
       action: 'input',
       input: '\\!'
-    }
+    },
+    {
+      title: '\\,',
+      description: '显示设置',
+      action: 'input',
+      input: '\\,'
+    },
+    {
+      title: '\\?',
+      description: '查看插件详情',
+      action: 'input',
+      input: '\\?'
+    },
   ]
 }
 
@@ -52,6 +65,12 @@ function getCmdHelp() {
       action: 'copy',
       copy: version
     },
+    {
+      title: '开源地址',
+      description: '在默认浏览器打开：https://github.com/mowtwo/utools-file-browser',
+      action: 'systemCmd',
+      systemCmd: 'start https://github.com/mowtwo/utools-file-browser'
+    }
   ]
 }
 
@@ -82,13 +101,13 @@ function getSystemExploererList(text) {
       if (!text) {
         return true
       }
-      console.log('search',text)
+      console.log('search', text)
       return item.title.toLowerCase().includes(text.toLowerCase())
     }
   )
 }
 
-function getSystemLogicDisks() {
+function getSystemLogicDisks(text) {
   return context.diskAreas.map(disk => {
     const isCurrent = path.parse(context.currentPath).root.startsWith(disk)
     console.log(disk)
@@ -98,7 +117,93 @@ function getSystemLogicDisks() {
       action: 'switchDisk',
       switchDisk: disk + '/'
     }
+  }).filter(
+    item => {
+      if (!text) {
+        return true
+      }
+      console.log('search', text)
+      return item.title.toLowerCase().includes(text.toLowerCase())
+    })
+}
+
+function getPluginSettings() {
+
+  const {
+    showFileType,
+    showHiddenFile,
+    showFileSize
+  } = settings
+
+  return [
+    {
+      title: '退出设置',
+      description: '返回指令选择',
+      action: 'input',
+      input: '\\'
+    },
+    // {
+    //   title: `显示文件类型：${showFileType ? '是' : '否'}`,
+    //   description: `点击${showFileType ? '关闭' : '开启'}`,
+    //   action: 'settings',
+    //   settings: {
+    //     showFileType: !showFileType
+    //   }
+    // },
+    {
+      title: `显示文件大小：${showFileSize ? '是' : '否'}`,
+      description: `点击${showFileSize ? '关闭' : '开启'}`,
+      action: 'settings',
+      settings: {
+        showFileSize: !showFileSize
+      }
+    },
+    {
+      title: `显示隐藏文件：${showHiddenFile ? '是' : '否'}`,
+      description: `点击${showHiddenFile ? '关闭' : '开启'}`,
+      action: 'settings',
+      settings: {
+        showHiddenFile: !showHiddenFile
+      }
+    }
+  ]
+}
+
+function getPluginFileSortTypes() {
+
+  const { sortBy } = settings
+
+  const sortTypeKeysSorted = [
+    ...SortTypeKeys
+  ].sort((a, b) => {
+    if (sortBy === a) {
+      return -1
+    }
+    if (sortBy === b) {
+      return 1
+    }
+    return 0
   })
+
+  console.log(sortTypeKeysSorted)
+
+
+  return [
+    {
+      title: '退出设置',
+      description: '返回指令选择',
+      action: 'input',
+      input: '\\'
+    },
+    ...sortTypeKeysSorted.map(key => {
+      return {
+        title: `排序方式：${SortType[key]}`,
+        description: sortBy === key ? '当前排序方式' : '点击切换',
+        action: 'sortBy',
+        sortBy: key
+      }
+    })
+  ]
 }
 
 
@@ -116,9 +221,20 @@ exports.getRunCmdResult = function getRunCmdResult(text) {
     return getSystemExploererList(cmd.slice(1).trim())
   }
 
-  if (cmd === '!') {
-    return getSystemLogicDisks()
+  if (cmd.startsWith('!')) {
+    return getSystemLogicDisks(
+      cmd.slice(1).trim()
+    )
   }
+
+  if (cmd === ',') {
+    return getPluginSettings()
+  }
+
+  if (cmd === '^') {
+    return getPluginFileSortTypes()
+  }
+
 
   return [
     {

@@ -1,10 +1,27 @@
 const { execSync, exec } = require("child_process")
 const { getCurrentDirFiles } = require("../shared/path")
-const { context } = require("../shared/store")
+const { context, settings } = require("../shared/store")
 const path = require("path")
+const { getRunCmdResult } = require("../shared/special")
 
 module.exports = function select(_, item, setList) {
-  const { action, isDirectory, fullPath } = item
+  const { action, isDirectory } = item
+
+  if (action === 'settings') {
+    Object.assign(settings, item.settings)
+    setList(
+      getRunCmdResult('\\,')
+    )
+    return
+  }
+
+  if (action === 'sortBy') {
+    settings.sortBy = item.sortBy
+    setList(
+      getRunCmdResult('\\^')
+    )
+    return
+  }
 
   // 清空utools输入框
   if (action === 'input') {
