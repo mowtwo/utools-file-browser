@@ -1,8 +1,6 @@
 const enter = require("./libs/args/enter");
 const search = require("./libs/args/search");
 const select = require("./libs/args/select");
-const { context } = require("./libs/shared/store");
-const path = require("path");
 
 window.exports = {
   "file-browser": {
@@ -17,10 +15,7 @@ window.exports = {
   "match-path": {
     mode: "list",
     args: {
-      enter(action, setList) {
-        context.currentPath = path.dirname(action.payload)
-        return enter(action, setList)
-      },
+      enter,
       search,
       select,
       placeholder: '输入`..`返回上一级文件夹，输入`\\`获取更多指令'
@@ -29,11 +24,7 @@ window.exports = {
   "match-file": {
     mode: "list",
     args: {
-
-      enter(action, setList) {
-        context.currentPath = path.dirname(action.payload[0].path)
-        return enter(action, setList)
-      },
+      enter,
       search,
       select,
       placeholder: '输入`..`返回上一级文件夹，输入`\\`获取更多指令'

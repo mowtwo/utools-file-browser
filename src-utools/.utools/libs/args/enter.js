@@ -1,8 +1,30 @@
 const { getLogicDisk } = require('../shared/disk');
 const { getCurrentDirFiles } = require('../shared/path');
 const { context } = require('../shared/store');
+const fs = require('fs')
 
-module.exports = function enter(_, setList) {
+module.exports = function enter(action, setList) {
+  const { payload, type } = action;
+  if (type !== 'text') {
+    let enterPayload = ''
+
+    if (type === 'regex') {
+      enterPayload = payload
+    } else if (type === 'files') {
+      enterPayload = payload[0].path
+    }
+
+    try {
+      const stat = fs.statSync(enterPayload)
+
+      if (stat.isDirectory()) {
+        context.currentPath = enterPayload
+      } else {
+        context.currentPath = path.dirname(enterPayload)
+      }
+    } catch { }
+  }
+
   getCurrentDirFiles().then((access) => {
     if (access) {
       setList(context.cachedList)
