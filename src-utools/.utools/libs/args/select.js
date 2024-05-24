@@ -50,7 +50,9 @@ module.exports = function select(_, item, setList) {
     utools.hideMainWindow()
     // 启动外部cmd
     exec(
-      'start cmd.exe /K ' + '"cd ' + context.currentPath + ' && ' + item.systemCmd + '"'
+      'start cmd.exe /K "' +
+      `cd /d ${context.currentPath} && ${item.systemCmd}"`
+      // '"cd ' + context.currentPath + ' && ' + item.systemCmd + '"'
     )
     return
   }
