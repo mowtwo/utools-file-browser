@@ -48,10 +48,11 @@ module.exports = function select(_, item, setList) {
 
   if (action === 'systemCmd') {
     utools.hideMainWindow()
+
     // 启动外部cmd
     exec(
       'start cmd.exe /K "' +
-      `cd /d ${context.currentPath} && ${item.systemCmd}"`
+      `cd /d ${context.currentPath} ${item.systemCmd.trim() === '' ? '' : '&& ' + item.systemCmd}"`
     )
     return
   }

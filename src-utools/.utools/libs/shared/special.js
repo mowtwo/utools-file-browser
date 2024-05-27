@@ -76,8 +76,8 @@ function getCmdHelp() {
     {
       title: '开源地址',
       description: '在默认浏览器打开：https://github.com/mowtwo/utools-file-browser',
-      action: 'systemCmd',
-      systemCmd: 'start https://github.com/mowtwo/utools-file-browser'
+      action: 'systemCmdBack',
+      systemCmdBack: 'start https://github.com/mowtwo/utools-file-browser'
     }
   ]
 }
