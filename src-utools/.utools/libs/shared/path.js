@@ -36,6 +36,7 @@ exports.getCurrentDirFiles = async function getCurrentDirFiles() {
           return null
         }
       })
+        .filter(Boolean)
         .filter((item) => {
           if (settings.showHiddenFile) {
             return true
@@ -80,7 +81,7 @@ exports.getCurrentDirFiles = async function getCurrentDirFiles() {
     }
     return true
   } catch (e) {
-    console.error(e)
+    utools.showNotification(e.message)
     return false
   }
 }
