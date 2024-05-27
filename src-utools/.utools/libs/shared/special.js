@@ -83,8 +83,11 @@ function getCmdHelp() {
 }
 
 function getSystemCmdRun(systemCmd) {
+
+  const cmds = []
+
   if (settings.cmdAlawyBack) {
-    return [
+    cmds.push(
       {
         title: '静默执行：' + systemCmd,
         description: '执行当前命令，但是不会打开一个cmd窗口',
@@ -97,23 +100,26 @@ function getSystemCmdRun(systemCmd) {
         action: 'systemCmd',
         systemCmd
       }
-    ]
+    )
+
+  } else {
+    cmds.push(
+      {
+        title: '开始执行：' + systemCmd,
+        description: '执行当前命令，将会打开一个cmd窗口',
+        action: 'systemCmd',
+        systemCmd
+      },
+      {
+        title: '静默执行：' + systemCmd,
+        description: '执行当前命令，但是不会打开一个cmd窗口',
+        action: 'systemCmdBack',
+        systemCmdBack: systemCmd
+      }
+    )
   }
 
-  return [
-    {
-      title: '开始执行：' + systemCmd,
-      description: '执行当前命令，将会打开一个cmd窗口',
-      action: 'systemCmd',
-      systemCmd
-    },
-    {
-      title: '静默执行：' + systemCmd,
-      description: '执行当前命令，但是不会打开一个cmd窗口',
-      action: 'systemCmdBack',
-      systemCmdBack: systemCmd
-    }
-  ]
+  return cmds
 }
 
 function getSystemExploererList(text) {
@@ -124,25 +130,23 @@ function getSystemExploererList(text) {
       action: 'input',
       input: '\\'
     },
-    ...context.cachedList.map(item => {
-      if (item.action && item.open) {
-        return {
-          ...item,
-          action: 'systemOpen',
-          systemOpen: item.open,
-          description: '将以系统文件管理器打开'
+    ...context.cachedList
+      .filter(
+        item => {
+          return item.action === 'open'
         }
-      }
-      return item
-    }).filter(
-      item => {
-        if (item.action === 'back') {
-          return false
+      )
+      .map(item => {
+        if (item.action && item.open) {
+          return {
+            ...item,
+            action: 'systemOpen',
+            systemOpen: item.open,
+            description: '将以系统文件管理器打开'
+          }
         }
-
-        return true
-      }
-    ).filter(fileListFilter(text))]
+        return item
+      }).filter(fileListFilter(text))]
 }
 
 function getSystemLogicDisks(text) {
